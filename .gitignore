@@ -1,0 +1,216 @@
+# Created by https://www.toptal.com/developers/gitignore/api/flutter,windows,visualstudiocode
+# Edit at https://www.toptal.com/developers/gitignore?templates=flutter,windows,visualstudiocode
+
+### Flutter ###
+# Flutter/Dart/Pub related
+**/doc/api/git add
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+flutter_export_environment.sh
+*.dart.js
+*.js_
+*.info.json
+*.js.deps
+*.js.map
+*.js_
+*.lock
+*.log
+*.manifest
+*.part
+*.sqlite*
+*.symbols
+.version
+/version.json
+**/generated_plugin_registrant.dart
+
+# Web related
+lib/generated_plugin_registrant.dart
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Standard JetBrains IDE project files
+/.idea/
+/.idea/workspace.xml
+/.idea/modules.xml
+/.idea/libraries/
+
+# Exceptions to the above
+!/.idea/runConfigurations/
+
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+.vscode/*.vsix
+
+### Windows ###
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# End of https://www.toptal.com/developers/gitignore/api/flutter,windows,visualstudiocode
+
+# Fichiers spécifiques au projet Épelle-Moi
+
+# Fichiers CSV sensibles (mots du concours)
+*.csv
+# Exceptions (si vous voulez garder un exemple)
+!data/assets/mots_exemple.csv
+
+# Fichiers de configuration environnement
+.env
+.env.*
+!env.example
+
+# Fichiers de build spécifiques
+**/ios/**/Generated.xcconfig
+**/ios/**/Pods/
+
+# macOS
+.DS_Store
+
+# VS Code (supplémentaire)
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+
+# Certificats et clés
+*.p12
+*.pem
+*.key
+*.cer
+
+# Fichiers de sauvegarde
+*.backup
+*.bak
+
+# Fichiers temporaires
+*.tmp
+*.temp
+
+# Fichiers de logs
+logs/
+*.log
+
+# Fichiers de cache
+.cache/
+
+# Fichiers de projet spécifiques aux IDE
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Fichiers de configuration spécifiques au projet
+pubspec.lock
+
+# Outputs de build
+/android/
+/ios/
+/web/
+/linux/
+/macos/
+/windows/
+
+# Exception pour les icônes/ressources nécessaires
+!/android/app/src/main/res/mipmap-*/
+!/ios/Runner/Assets.xcassets/AppIcon.appiconset/*
+!/web/favicon.png
+
+# Fichiers générés par Flutter
+.flutter/
+flutter_*.png
+
+# Fichiers de métadonnées
+.metadata
+
+# Fichiers de débogage
+*.dSYM/
+*.dart_tool/
+*.flutter-plugins
+
+# Coverage
+coverage/
+
+# Packages
+.packages
+.pub-cache/
+
+# Fichiers de configuration de l'éditeur
+.vscode/launch.json
+.vscode/settings.json
+
+# Fichiers de données de test
+/test/data/
+/integration_test/data/
+
+# Fichiers de déploiement
+deploy/
+*.apk
+*.ipa
+*.app
+
+# Documentation générée
+doc/api/
+doc/blocs/
+
+# Fichiers de screenshots
+screenshots/
+
+# Fichiers de performance
+performance/
+
+# Fichiers de métriques
+metrics/
+
+# Fichiers de cache de dépendances
+.hospitality/
+
+# Fichiers spécifiques au développement Windows pour Flutter
+/windows/flutter/generated_plugin_registrant.cc
+/windows/flutter/generated_plugin_registrant.h
+/windows/flutter/generated_plugins.cmake
