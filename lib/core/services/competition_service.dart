@@ -27,6 +27,36 @@ class CompetitionService extends ChangeNotifier {
   String get epellationSaisie => _epellationSaisie;
   bool get motRevele => _motRevele;
   int get chronoRestant => _chronoRestant;
+  // Vérifie si l'épellation est complète et correcte
+  bool get epellationEstComplete {
+    if (_motActuel == null) return false;
+    return _epellationSaisie.length >= _motActuel!.orthographeOfficielle.length;
+  }
+
+  // Vérifie si l'épellation actuelle est correcte
+  bool get epellationEstCorrecte {
+    if (_motActuel == null) return false;
+    return _epellationSaisie.toUpperCase() ==
+        _motActuel!.orthographeOfficielle.toUpperCase();
+  }
+
+  // Obtient l'état de chaque lettre (pour colorier)
+  List<bool> get etatLettres {
+    if (_motActuel == null) return [];
+
+    final List<bool> etats = [];
+    final mot = _motActuel!.orthographeOfficielle.toUpperCase();
+    final saisie = _epellationSaisie.toUpperCase();
+
+    for (int i = 0; i < saisie.length; i++) {
+      if (i < mot.length) {
+        etats.add(saisie[i] == mot[i]);
+      } else {
+        etats.add(false); // Lettre en trop = incorrecte
+      }
+    }
+    return etats;
+  }
 
   // Initialisation
   Future<void> initialiserAvecCsv(String csvContent) async {

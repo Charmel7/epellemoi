@@ -7,711 +7,1161 @@ import '../../../core/services/competition_service.dart';
 
 class ControlScreen extends StatefulWidget {
   final VoidCallback onReinitialiser;
+  final bool isProductionMode;
 
-  const ControlScreen({super.key, required this.onReinitialiser});
+  const ControlScreen({
+    super.key,
+    required this.onReinitialiser,
+    this.isProductionMode = false, // VALEUR PAR DÉFAUT
+  });
 
   @override
   State<ControlScreen> createState() => _ControlScreenState();
 }
 
 class _ControlScreenState extends State<ControlScreen> {
-  final TextEditingController _saisieController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
+  late CompetitionService _competition;
 
   @override
   void initState() {
     super.initState();
-    // Synchroniser le contrôleur avec l'état initial
-    _saisieController.text = context
-        .read<CompetitionService>()
-        .epellationSaisie;
-
-    // Écouter les changements du service
-    context.read<CompetitionService>().addListener(
-      _updateControllerFromService,
-    );
-  }
-
-  void _updateControllerFromService() {
-    final service = context.read<CompetitionService>();
-    if (_saisieController.text != service.epellationSaisie) {
-      _saisieController.text = service.epellationSaisie;
-    }
+    _competition = context.read<CompetitionService>();
   }
 
   @override
-  void dispose() {
-    context.read<CompetitionService>().removeListener(
-      _updateControllerFromService,
-    );
-    _saisieController.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
+  // Dans control_screen.dart - MODIFIER la méthode build()
   @override
   Widget build(BuildContext context) {
-    final competition = Provider.of<CompetitionService>(context);
-
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Barre supérieure avec bouton de retour
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: [
-                IconButton(
-                  icon: Icon(Icons.settings, color: Colors.white),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text('Retour à la configuration'),
-                        content: Text(
-                          'Voulez-vous retourner à l\'écran de configuration ? '
-                          'La partie en cours ne sera pas sauvegardée.',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: Text('Annuler'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              widget.onReinitialiser();
-                            },
-                            child: Text(
-                              'Retour',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-
-                Text(
-                  'CONSOLE DE RÉGIE',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                // Indicateur de phase
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.or.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.or),
-                  ),
-                  child: Text(
-                    competition.phaseActuelle.nom,
-                    style: TextStyle(
-                      color: AppColors.or,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 10),
-
-            // Fiche Prononceur
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
+                // Barre supérieure avec bouton de retour
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Card(
-                      color: Colors.black.withOpacity(0.3),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'FICHE PRONONCEUR',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                if (competition.motActuel != null)
-                                  Text(
-                                    'Niveau: ${competition.motActuel!.niveauDifficulte}/5',
-                                    style: TextStyle(color: AppColors.or),
-                                  ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            // Mot actuel
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.black,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppColors.or),
-                              ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    'MOT ACTUEL',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white70,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    competition.motActuel?.mot.toUpperCase() ??
-                                        'AUCUN MOT',
-                                    style: TextStyle(
-                                      fontSize: 32,
-                                      color: AppColors.or,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 2,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            // Définition et exemple
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.5),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.info,
-                                              size: 16,
-                                              color: Colors.white70,
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              'DÉFINITION',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white70,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          competition.motActuel?.definition ??
-                                              'Aucune définition disponible',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-
-                                const SizedBox(width: 16),
-
-                                Expanded(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.5),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.format_quote,
-                                              size: 16,
-                                              color: Colors.white70,
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              'EXEMPLE',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white70,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          competition.motActuel?.exemple ??
-                                              'Aucun exemple disponible',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            // Informations supplémentaires
-                            if (competition.motActuel != null)
-                              Wrap(
-                                spacing: 10,
-                                runSpacing: 10,
-                                children: [
-                                  Chip(
-                                    label: Text(
-                                      competition.motActuel!.categorie,
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.blue.withOpacity(
-                                      0.3,
-                                    ),
-                                  ),
-                                  Chip(
-                                    label: Text(
-                                      competition.motActuel!.natureGrammaticale,
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.purple.withOpacity(
-                                      0.3,
-                                    ),
-                                  ),
-                                  if (competition
-                                      .motActuel!
-                                      .etymologie
-                                      .isNotEmpty)
-                                    Chip(
-                                      label: Text(
-                                        competition.motActuel!.etymologie,
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      backgroundColor: Colors.green.withOpacity(
-                                        0.3,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                          ],
-                        ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.settings,
+                        color: Colors.white,
+                        size: 28,
                       ),
+                      onPressed: () => _showResetDialog(context),
+                      tooltip: 'Retour à la configuration',
                     ),
 
-                    const SizedBox(height: 20),
+                    // Titre
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'CONSOLE DE RÉGIE',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Phase: ${_competition.phaseActuelle.nom}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.or,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
 
-                    // Saisie d'épellation
-                    Card(
-                      color: Colors.black.withOpacity(0.3),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    // Indicateurs
+                    Consumer<CompetitionService>(
+                      builder: (context, competition, child) {
+                        final candidatActuel = competition.candidatActuel;
+                        return Row(
                           children: [
-                            Text(
-                              'SAISIE EN DIRECT',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-
-                            // Champ de saisie
-                            TextField(
-                              controller: _saisieController,
-                              focusNode: _focusNode,
-                              decoration: InputDecoration(
-                                hintText:
-                                    'Tapez les lettres dictées... (Appuyez sur ESPACE pour séparer)',
-                                border: OutlineInputBorder(),
-                                filled: true,
-                                fillColor: Colors.white10,
-                                suffixIcon: Row(
-                                  mainAxisSize: MainAxisSize.min,
+                            if (candidatActuel != null) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.or.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: AppColors.or),
+                                ),
+                                child: Row(
                                   children: [
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.backspace,
-                                        color: Colors.white,
-                                      ),
-                                      tooltip: 'Effacer dernière lettre',
-                                      onPressed: () {
-                                        competition.supprimerLettre();
-                                        _saisieController.text =
-                                            competition.epellationSaisie;
-                                      },
+                                    const Icon(
+                                      Icons.person,
+                                      size: 14,
+                                      color: Colors.white,
                                     ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.clear_all,
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      candidatActuel.nom,
+                                      style: const TextStyle(
                                         color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
                                       ),
-                                      tooltip: 'Effacer tout',
-                                      onPressed: () {
-                                        competition.effacerEpellation();
-                                        _saisieController.clear();
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        Icons.space_bar,
-                                        color: Colors.white,
-                                      ),
-                                      tooltip: 'Ajouter un espace',
-                                      onPressed: () {
-                                        competition.ajouterLettre(' ');
-                                        _saisieController.text =
-                                            competition.epellationSaisie;
-                                      },
                                     ),
                                   ],
                                 ),
                               ),
-                              style: TextStyle(
-                                fontSize: 24,
-                                color: Colors.white,
-                                letterSpacing: 2,
-                              ),
-                              onChanged: (value) {
-                                // Synchroniser avec le service
-                                final nouvelleSaisie = value.toUpperCase();
-
-                                // Si la différence est d'une lettre, l'ajouter
-                                if (nouvelleSaisie.length >
-                                    competition.epellationSaisie.length) {
-                                  final nouvelleLettre = nouvelleSaisie
-                                      .substring(nouvelleSaisie.length - 1);
-                                  competition.ajouterLettre(nouvelleLettre);
-                                }
-                                // Si la différence est une suppression
-                                else if (nouvelleSaisie.length <
-                                    competition.epellationSaisie.length) {
-                                  competition.supprimerLettre();
-                                }
-                              },
-                              onSubmitted: (value) {
-                                // Réinitialiser le champ mais garder l'épellation
-                                _saisieController.clear();
-                              },
-                            ),
-
-                            const SizedBox(height: 10),
-
-                            // Aperçu des lettres
-                            if (competition.epellationSaisie.isNotEmpty)
+                              const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: Colors.green.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: Colors.green),
                                 ),
-                                child: Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: competition.epellationSaisie
-                                      .split('')
-                                      .map((lettre) {
-                                        return Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.bleuMarineClair,
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            lettre == ' ' ? '␣' : lettre,
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        );
-                                      })
-                                      .toList(),
-                                ),
-                              ),
-
-                            const SizedBox(height: 10),
-
-                            // Indicateur de progression
-                            if (competition.motActuel != null)
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: LinearProgressIndicator(
-                                      value:
-                                          competition.epellationSaisie.length /
-                                          competition
-                                              .motActuel!
-                                              .orthographeOfficielle
-                                              .length,
-                                      backgroundColor: Colors.white24,
-                                      color: AppColors.or,
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star,
+                                      size: 14,
+                                      color: Colors.white,
                                     ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    '${competition.epellationSaisie.length}/${competition.motActuel!.orthographeOfficielle.length}',
-                                    style: TextStyle(color: Colors.white70),
-                                  ),
-                                ],
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'Score: ${candidatActuel.score}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
+                            ],
                           ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Contenu principal
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Panneau gauche (Fiche prononceur + Saisie)
+                      Expanded(
+                        flex: 2,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              _buildPronouncerCard(),
+                              const SizedBox(height: 16),
+                              _buildInputCard(),
+                              const SizedBox(height: 16),
+                              _buildControlButtons(),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
-                    const SizedBox(height: 20),
+                      const SizedBox(width: 16),
 
-                    // Boutons de contrôle
-                    Card(
+                      // Panneau droit (Liste des candidats)
+                      Expanded(flex: 1, child: _buildCandidatesPanel()),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // POINT 3: Indicateur de mode production en overlay
+          if (widget.isProductionMode)
+            Positioned(
+              top: 10,
+              left: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.green, width: 1),
+                  boxShadow: [
+                    BoxShadow(
                       color: Colors.black.withOpacity(0.3),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: competition.tirerMotAleatoire,
-                                  icon: Icon(Icons.skip_next),
-                                  label: Text('MOT SUIVANT'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.or,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                  ),
-                                ),
-
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    competition.revelerMot();
-                                    competition.mettreEnPauseChrono();
-                                  },
-                                  icon: Icon(Icons.visibility),
-                                  label: Text('RÉVÉLER'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                  ),
-                                ),
-
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    competition.reinitialiserChrono();
-                                    competition.demarrerChrono();
-                                  },
-                                  icon: Icon(Icons.restart_alt),
-                                  label: Text('REDÉMARRER CHRONO'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 10),
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    competition.marquerCorrect();
-                                    competition.tirerMotAleatoire();
-                                    _saisieController.clear();
-                                  },
-                                  icon: Icon(Icons.check),
-                                  label: Text('CORRECT + SUIVANT'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                  ),
-                                ),
-
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    competition.marquerIncorrect();
-                                    competition.tirerMotAleatoire();
-                                    _saisieController.clear();
-                                  },
-                                  icon: Icon(Icons.close),
-                                  label: Text('INCORRECT + SUIVANT'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 15,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                      blurRadius: 5,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.tv, size: 14, color: Colors.green),
+                    const SizedBox(width: 6),
+                    Text(
+                      'PRODUCTION',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopBar(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: AppColors.bleuMarineClair.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.or.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Bouton retour configuration
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white, size: 28),
+            onPressed: () => _showResetDialog(context),
+            tooltip: 'Retour à la configuration',
+          ),
+
+          // Titre
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'CONSOLE DE RÉGIE',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Phase: ${_competition.phaseActuelle.nom}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.or,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+
+          // Indicateurs
+          Consumer<CompetitionService>(
+            builder: (context, competition, child) {
+              final candidatActuel = competition.candidatActuel;
+              return Row(
+                children: [
+                  if (candidatActuel != null) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.or.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.or),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.person,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            candidatActuel.nom,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.green),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.star, size: 14, color: Colors.white),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Score: ${candidatActuel.score}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPronouncerCard() {
+    return Card(
+      elevation: 8,
+      color: AppColors.bleuMarine.withOpacity(0.8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: AppColors.or.withOpacity(0.5), width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'FICHE PRONONCEUR',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                Consumer<CompetitionService>(
+                  builder: (context, competition, child) {
+                    if (competition.motActuel == null) {
+                      return Container();
+                    }
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.purple.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.purple),
+                      ),
+                      child: Text(
+                        'Niveau ${competition.motActuel!.niveauDifficulte}/5',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Mot actuel
+            Consumer<CompetitionService>(
+              builder: (context, competition, child) {
+                final mot = competition.motActuel?.mot ?? 'AUCUN MOT';
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.or),
+                  ),
+                  child: Column(
+                    children: [
+                      const Text(
+                        'MOT À ÉPELLER',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        mot.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 36,
+                          color: AppColors.or,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 3,
+                          fontFamily: 'Georgia',
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
 
             const SizedBox(height: 20),
 
-            // Liste des candidats
+            // Informations du mot
+            Consumer<CompetitionService>(
+              builder: (context, competition, child) {
+                final mot = competition.motActuel;
+                if (mot == null) {
+                  return const Center(
+                    child: Text(
+                      'Aucun mot sélectionné',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  );
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Définition
+                    _buildInfoSection(
+                      icon: Icons.info_outline,
+                      title: 'DÉFINITION',
+                      content: mot.definition,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Exemple
+                    _buildInfoSection(
+                      icon: Icons.format_quote,
+                      title: 'EXEMPLE',
+                      content: mot.exemple,
+                      isItalic: true,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Métadonnées
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _buildMetadataChip(
+                          label: mot.categorie,
+                          color: Colors.blue,
+                        ),
+                        _buildMetadataChip(
+                          label: mot.natureGrammaticale,
+                          color: Colors.purple,
+                        ),
+                        if (mot.etymologie.isNotEmpty)
+                          _buildMetadataChip(
+                            label: mot.etymologie,
+                            color: Colors.green,
+                          ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoSection({
+    required IconData icon,
+    required String title,
+    required String content,
+    bool isItalic = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: Colors.white70),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            content.isNotEmpty ? content : 'Non disponible',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              height: 1.5,
+              fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetadataChip({required String label, required Color color}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputCard() {
+    return Card(
+      elevation: 8,
+      color: AppColors.bleuMarine.withOpacity(0.8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: AppColors.or.withOpacity(0.5), width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'SAISIE D\'ÉPELLATION',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Champ de saisie amélioré
             Container(
-              height: 150,
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white24),
               ),
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'CANDIDATS (${competition.candidats.length})',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Cliquez pour sélectionner',
-                          style: TextStyle(fontSize: 12, color: Colors.white70),
-                        ),
-                      ],
+                  TextField(
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.white,
+                      letterSpacing: 2,
+                      fontFamily: 'Courier New',
                     ),
+                    decoration: InputDecoration(
+                      hintText: 'Tapez les lettres dictées...',
+                      hintStyle: TextStyle(color: Colors.white54),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    maxLines: 1,
+                    onChanged: (value) {
+                      _handleTextInput(value);
+                    },
+                    textCapitalization: TextCapitalization.characters,
                   ),
+                  const SizedBox(height: 16),
 
-                  Expanded(
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: competition.candidats.length,
-                      itemBuilder: (context, index) {
-                        final candidat = competition.candidats[index];
-                        final estActif =
-                            competition.candidatActuel?.id == candidat.id;
-
-                        return GestureDetector(
-                          onTap: () {
-                            competition.selectionnerCandidat(candidat.id);
-                          },
-                          child: Container(
-                            width: 150,
-                            margin: const EdgeInsets.all(4),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: estActif
-                                  ? AppColors.or.withOpacity(0.2)
-                                  : Colors.black.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: estActif ? AppColors.or : Colors.white24,
-                                width: estActif ? 2 : 1,
-                              ),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  candidat.nom,
-                                  style: TextStyle(
-                                    color: estActif
-                                        ? AppColors.or
-                                        : Colors.white,
-                                    fontWeight: estActif
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                    fontSize: 16,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.5),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    'Score: ${candidat.score}',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                  // Boutons de contrôle de saisie
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _competition.supprimerLettre(),
+                          icon: const Icon(Icons.backspace, size: 20),
+                          label: const Text('RETOUR'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _competition.ajouterLettre(' '),
+                          icon: const Icon(Icons.space_bar, size: 20),
+                          label: const Text('ESPACE'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _competition.effacerEpellation(),
+                          icon: const Icon(Icons.clear_all, size: 20),
+                          label: const Text('EFFACER'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
+
+            const SizedBox(height: 16),
+
+            // Aperçu visuel
+            Consumer<CompetitionService>(
+              builder: (context, competition, child) {
+                final saisie = competition.epellationSaisie;
+                final motOfficiel =
+                    competition.motActuel?.orthographeOfficielle ?? '';
+
+                if (saisie.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'En attente de saisie...',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  );
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'APERÇU:',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white70,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: saisie.split('').asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final lettre = entry.value;
+                          final estCorrecte =
+                              index < motOfficiel.length &&
+                              lettre.toUpperCase() ==
+                                  motOfficiel[index].toUpperCase();
+
+                          return Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: estCorrecte
+                                  ? Colors.green.withOpacity(0.2)
+                                  : Colors.red.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: estCorrecte ? Colors.green : Colors.red,
+                                width: 2,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                lettre == ' ' ? '␣' : lettre,
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Indicateur de progression
+                    LinearProgressIndicator(
+                      value: motOfficiel.isNotEmpty
+                          ? saisie.length / motOfficiel.length
+                          : 0,
+                      backgroundColor: Colors.white24,
+                      color: AppColors.or,
+                      minHeight: 6,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Progression:',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                        Text(
+                          '${saisie.length}/${motOfficiel.length}',
+                          style: TextStyle(
+                            color: AppColors.or,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _handleTextInput(String value) {
+    final uppercaseValue = value.toUpperCase();
+    final currentSaisie = _competition.epellationSaisie.toUpperCase();
+
+    // Ignorer si identique
+    if (uppercaseValue == currentSaisie) return;
+
+    // Si nouvel input est plus long
+    if (uppercaseValue.length > currentSaisie.length) {
+      final nouvellesLettres = uppercaseValue.substring(currentSaisie.length);
+      for (final lettre in nouvellesLettres.split('')) {
+        if (lettre.isNotEmpty) {
+          _competition.ajouterLettre(lettre);
+        }
+      }
+    }
+    // Si nouvel input est plus court (retour arrière)
+    else if (uppercaseValue.length < currentSaisie.length) {
+      // Vérifier si c'est une suppression à la fin (mot commençant pareil)
+      if (currentSaisie.startsWith(uppercaseValue)) {
+        final difference = currentSaisie.length - uppercaseValue.length;
+        for (int i = 0; i < difference; i++) {
+          _competition.supprimerLettre();
+        }
+      } else {
+        // Suppression au milieu -> tout effacer et réécrire
+        _competition.effacerEpellation();
+        for (final lettre in uppercaseValue.split('')) {
+          if (lettre.isNotEmpty) {
+            _competition.ajouterLettre(lettre);
+          }
+        }
+      }
+    }
+    // Même longueur mais contenu différent (collage)
+    else {
+      _competition.effacerEpellation();
+      for (final lettre in uppercaseValue.split('')) {
+        if (lettre.isNotEmpty) {
+          _competition.ajouterLettre(lettre);
+        }
+      }
+    }
+  }
+
+  Widget _buildControlButtons() {
+    return Card(
+      elevation: 8,
+      color: AppColors.bleuMarine.withOpacity(0.8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: AppColors.or.withOpacity(0.5), width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const Text(
+              'CONTRÔLES DU JEU',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Première ligne de boutons
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _competition.tirerMotAleatoire,
+                    icon: const Icon(Icons.skip_next, size: 24),
+                    label: const Text('MOT SUIVANT'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.bleuMarineClair,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      _competition.revelerMot();
+                      _competition.mettreEnPauseChrono();
+                    },
+                    icon: const Icon(Icons.visibility, size: 24),
+                    label: const Text('RÉVÉLER'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      _competition.reinitialiserChrono();
+                      _competition.demarrerChrono();
+                    },
+                    icon: const Icon(Icons.restart_alt, size: 24),
+                    label: const Text('CHRONO'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Deuxième ligne de boutons
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      _competition.marquerCorrect();
+                      _competition.tirerMotAleatoire();
+                    },
+                    icon: const Icon(Icons.check_circle, size: 24),
+                    label: const Text('CORRECT'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      _competition.marquerIncorrect();
+                      _competition.tirerMotAleatoire();
+                    },
+                    icon: const Icon(Icons.cancel, size: 24),
+                    label: const Text('INCORRECT'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCandidatesPanel() {
+    return Card(
+      elevation: 8,
+      color: AppColors.bleuMarine.withOpacity(0.8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: AppColors.or.withOpacity(0.5), width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'CANDIDATS',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                Consumer<CompetitionService>(
+                  builder: (context, competition, child) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.bleuMarineFonce,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '${competition.candidats.length} participants',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(color: Colors.white24, height: 1),
+            const SizedBox(height: 16),
+
+            // Liste des candidats
+            Expanded(
+              child: Consumer<CompetitionService>(
+                builder: (context, competition, child) {
+                  if (competition.candidats.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.people_outline,
+                            size: 64,
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Aucun candidat',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    itemCount: competition.candidats.length,
+                    itemBuilder: (context, index) {
+                      final candidat = competition.candidats[index];
+                      final estActif =
+                          competition.candidatActuel?.id == candidat.id;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: InkWell(
+                          onTap: () =>
+                              competition.selectionnerCandidat(candidat.id),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: estActif
+                                  ? AppColors.or.withOpacity(0.2)
+                                  : Colors.black.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: estActif
+                                    ? AppColors.or
+                                    : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                // Numéro
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: estActif
+                                        ? AppColors.or
+                                        : AppColors.bleuMarineClair,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '${index + 1}',
+                                      style: TextStyle(
+                                        color: estActif
+                                            ? Colors.black
+                                            : Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+
+                                // Nom et score
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        candidat.nom,
+                                        style: TextStyle(
+                                          color: estActif
+                                              ? AppColors.or
+                                              : Colors.white,
+                                          fontWeight: estActif
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
+                                          fontSize: 16,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Score: ${candidat.score}',
+                                        style: const TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // Indicateur actif
+                                if (estActif)
+                                  const Icon(
+                                    Icons.check_circle,
+                                    color: AppColors.or,
+                                    size: 20,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showResetDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.bleuMarine,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: AppColors.or, width: 2),
+        ),
+        title: const Text(
+          'Retour à la configuration',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Voulez-vous retourner à l\'écran de configuration ?\n'
+          'La partie en cours ne sera pas sauvegardée.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'Annuler',
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              widget.onReinitialiser();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: const Text(
+              'Retour configuration',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
