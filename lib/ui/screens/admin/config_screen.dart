@@ -8,8 +8,8 @@ import 'package:provider/provider.dart';
 import '../../../core/models/candidate.dart';
 import '../../../core/models/phase.dart';
 import '../../../core/services/competition_service.dart';
+import '../../widgets/header/competition_title.dart'; // Import du nouveau titre
 
-// Dans config_screen.dart
 class ConfigScreen extends StatefulWidget {
   final VoidCallback onConfigurationComplete;
 
@@ -54,502 +54,424 @@ class _ConfigScreenState extends State<ConfigScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Color(0xFF001529),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // En-tête
-            Container(
-              padding: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Color(0xFFD4AF37), width: 2),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.spellcheck, color: Color(0xFFD4AF37), size: 40),
-                  const SizedBox(width: 15),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ÉPELLE-MOI',
-                        style: TextStyle(
-                          fontSize: 28,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Console de Régie - Mode Développement',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFFD4AF37),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Indicateurs de statut
-            Row(
-              children: [
-                _buildStatusIndicator(
-                  label: 'MOTS',
-                  isReady: competition.mots.isNotEmpty,
-                  count: competition.mots.length,
-                ),
-                const SizedBox(width: 15),
-                _buildStatusIndicator(
-                  label: 'CANDIDATS',
-                  isReady: competition.candidats.isNotEmpty,
-                  count: competition.candidats.length,
-                ),
-                const SizedBox(width: 15),
-                _buildStatusIndicator(
-                  label: 'PHASE',
-                  isReady: true,
-                  text: _selectedPhase.nom,
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          // Header inspiré de l'affiche
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 32),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
+            child: Column(
+              children: [
+                CompetitionTitle(isDarkMode: true, showSubtitle: false),
+                const SizedBox(height: 16),
+                Text(
+                  'CONFIGURATION DU CONCOURS',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.7),
+                    letterSpacing: 2,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ],
+            ),
+          ),
 
-            const SizedBox(height: 25),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Indicateurs de statut
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[300]!),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildStatutIndicator(
+                          label: 'MOTS',
+                          isReady: competition.mots.isNotEmpty,
+                          count: competition.mots.length,
+                        ),
+                        _buildStatutIndicator(
+                          label: 'CANDIDATS',
+                          isReady: competition.candidats.isNotEmpty,
+                          count: competition.candidats.length,
+                        ),
+                        _buildStatutIndicator(
+                          label: 'PHASE',
+                          isReady: true,
+                          text: _selectedPhase.nom,
+                        ),
+                      ],
+                    ),
+                  ),
 
-            // Section CSV - CHARGEMENT DE FICHIER
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Card(
-                      color: Colors.black.withOpacity(0.3),
-                      elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 24),
+
+                  // Section CSV
+                  _buildSection(
+                    title: 'CHARGEMENT DES MOTS',
+                    icon: Icons.description,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Fichier CSV',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.grey[50],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _cheminController,
+                                      decoration: InputDecoration(
+                                        hintText: 'chemin/vers/fichier.csv',
+                                        border: InputBorder.none,
+                                        hintStyle: TextStyle(
+                                          color: Colors.grey[400],
+                                        ),
+                                        contentPadding: EdgeInsets.zero,
+                                      ),
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      await _selectionnerFichier();
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.black,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                    child: const Text('PARCOURIR'),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              if (_statutChargement != 'Prêt')
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: _statutChargement.contains('Erreur')
+                                        ? Colors.red[50]
+                                        : Colors.green[50],
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        _statutChargement.contains('Erreur')
+                                            ? Icons.error
+                                            : Icons.info,
+                                        size: 16,
+                                        color:
+                                            _statutChargement.contains('Erreur')
+                                            ? Colors.red
+                                            : Colors.green,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          _statutChargement,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color:
+                                                _statutChargement.contains(
+                                                  'Erreur',
+                                                )
+                                                ? Colors.red
+                                                : Colors.green,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.file_upload,
-                                  color: Color(0xFFD4AF37),
-                                  size: 24,
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: _chargementEnCours
+                                    ? null
+                                    : () async {
+                                        if (_cheminController.text
+                                            .trim()
+                                            .isNotEmpty) {
+                                          await _chargerFichierCsv(
+                                            context,
+                                            competition,
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: const Text(
+                                                'Veuillez sélectionner un fichier',
+                                              ),
+                                              backgroundColor: Colors.black,
+                                            ),
+                                          );
+                                        }
+                                      },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.black,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'CHARGEMENT DU FICHIER CSV',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                child: _chargementEnCours
+                                    ? SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                    : const Text('CHARGER LE FICHIER CSV'),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            OutlinedButton(
+                              onPressed: () {
+                                _creerExempleCSV();
+                              },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.black,
+                                side: BorderSide(color: Colors.grey[400]!),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
                                 ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            // Instructions
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Color(0xFF0A1A2F),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Instructions :',
-                                    style: TextStyle(
-                                      color: Color(0xFFD4AF37),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    '1. Placez votre fichier CSV dans un dossier accessible',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  Text(
-                                    '2. Cliquez sur "Parcourir..." pour le sélectionner',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  Text(
-                                    '3. Cliquez sur "CHARGER LE FICHIER"',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            // Champ du chemin
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.white24),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Chemin du fichier CSV :',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: TextField(
-                                          controller: _cheminController,
-                                          decoration: InputDecoration(
-                                            hintText: 'C:/Users/.../mots.csv',
-                                            border: OutlineInputBorder(),
-                                            filled: true,
-                                            fillColor: Colors.white10,
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 14,
-                                                ),
-                                          ),
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      ElevatedButton.icon(
-                                        onPressed: () async {
-                                          await _selectionnerFichier();
-                                        },
-                                        icon: Icon(Icons.folder_open, size: 18),
-                                        label: Text('Parcourir...'),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Color(0xFF1A365D),
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 15,
-                                            vertical: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            // Boutons d'action
-                            if (_chargementEnCours)
-                              Column(
-                                children: [
-                                  CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Color(0xFFD4AF37),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 15),
-                                  Text(
-                                    'Chargement en cours...',
-                                    style: TextStyle(color: Colors.white70),
-                                  ),
-                                ],
-                              )
-                            else
-                              Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: ElevatedButton.icon(
-                                          onPressed: () async {
-                                            if (_cheminController.text
-                                                .trim()
-                                                .isNotEmpty) {
-                                              await _chargerFichierCsv(
-                                                context,
-                                                competition,
-                                              );
-                                            } else {
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    'Veuillez sélectionner un fichier',
-                                                  ),
-                                                  backgroundColor:
-                                                      Colors.orange,
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          icon: Icon(
-                                            Icons.upload_file,
-                                            size: 22,
-                                          ),
-                                          label: Text('CHARGER LE FICHIER CSV'),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Color(0xFFD4AF37),
-                                            padding: EdgeInsets.symmetric(
-                                              vertical: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  const SizedBox(height: 10),
-
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: OutlinedButton.icon(
-                                          onPressed: () {
-                                            _creerExempleCSV();
-                                          },
-                                          icon: Icon(
-                                            Icons.lightbulb_outline,
-                                            size: 18,
-                                          ),
-                                          label: Text(
-                                            'CRÉER UN FICHIER D\'EXEMPLE',
-                                          ),
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor: Colors.blue,
-                                            side: BorderSide(
-                                              color: Colors.blue,
-                                            ),
-                                            padding: EdgeInsets.symmetric(
-                                              vertical: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-
-                            const SizedBox(height: 20),
-
-                            // Statut du chargement
-                            if (_nomFichierCharge != null)
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.withOpacity(0.1),
+                                shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.green),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.check_circle,
-                                      color: Colors.green,
-                                      size: 24,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Fichier chargé avec succès',
-                                            style: TextStyle(
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          Text(
-                                            '$_nomFichierCharge',
-                                            style: TextStyle(
-                                              color: Colors.white70,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            else if (_statutChargement != 'Prêt')
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.orange.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.orange),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.info,
-                                      color: Colors.orange,
-                                      size: 24,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        _statutChargement,
-                                        style: TextStyle(
-                                          color: Colors.orange,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ),
+                              child: const Text('EXEMPLE'),
+                            ),
                           ],
                         ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Section Candidats
-                    Card(
-                      color: Colors.black.withOpacity(0.3),
-                      elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                        if (_nomFichierCharge != null) ...[
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.green[50],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.green[100]!),
+                            ),
+                            child: Row(
                               children: [
                                 Icon(
-                                  Icons.people,
-                                  color: Color(0xFFD4AF37),
-                                  size: 24,
+                                  Icons.check_circle,
+                                  color: Colors.green[700],
+                                  size: 20,
                                 ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'GESTION DES CANDIDATS',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            // Champ d'ajout de candidat
-                            Row(
-                              children: [
+                                const SizedBox(width: 12),
                                 Expanded(
-                                  child: TextField(
-                                    controller: _candidatController,
-                                    decoration: InputDecoration(
-                                      hintText: 'Nom du candidat',
-                                      border: OutlineInputBorder(),
-                                      filled: true,
-                                      fillColor: Colors.white10,
-                                      prefixIcon: Icon(
-                                        Icons.person_add,
-                                        color: Colors.white70,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Fichier chargé avec succès',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.green[700],
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
-                                    ),
-                                    style: TextStyle(color: Colors.white),
-                                    onSubmitted: (value) {
-                                      _ajouterCandidat(value, competition);
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _ajouterCandidat(
-                                      _candidatController.text,
-                                      competition,
-                                    );
-                                  },
-                                  child: Text('AJOUTER'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xFFD4AF37),
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 25,
-                                      vertical: 15,
-                                    ),
+                                      Text(
+                                        _nomFichierCharge!,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.green[600],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
 
-                            const SizedBox(height: 15),
+                  const SizedBox(height: 24),
 
-                            // Liste des candidats
-                            if (competition.candidats.isNotEmpty)
-                              Container(
-                                height: 200,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.white24),
-                                  borderRadius: BorderRadius.circular(8),
+                  // Section Candidats
+                  _buildSection(
+                    title: 'GESTION DES CANDIDATS',
+                    icon: Icons.people,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.grey[50],
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _candidatController,
+                                  decoration: InputDecoration(
+                                    hintText: 'Nom du candidat',
+                                    border: InputBorder.none,
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey[400],
+                                    ),
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black87,
+                                  ),
+                                  onSubmitted: (value) {
+                                    _ajouterCandidat(value, competition);
+                                  },
                                 ),
-                                child: ListView.builder(
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton(
+                                onPressed: () {
+                                  _ajouterCandidat(
+                                    _candidatController.text,
+                                    competition,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.black,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                ),
+                                child: const Text('AJOUTER'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Liste des candidats',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: competition.candidats.isNotEmpty
+                              ? ListView.builder(
+                                  padding: const EdgeInsets.all(8),
                                   itemCount: competition.candidats.length,
                                   itemBuilder: (context, index) {
                                     final candidat =
                                         competition.candidats[index];
                                     return Container(
-                                      margin: EdgeInsets.symmetric(
-                                        vertical: 2,
-                                        horizontal: 4,
-                                      ),
+                                      margin: const EdgeInsets.only(bottom: 8),
                                       decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.5),
+                                        color: Colors.grey[50],
                                         borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(
+                                          color: Colors.grey[200]!,
+                                        ),
                                       ),
                                       child: ListTile(
                                         leading: CircleAvatar(
-                                          backgroundColor: Color(0xFFD4AF37),
+                                          backgroundColor: Colors.black,
                                           child: Text(
                                             (index + 1).toString(),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               color: Colors.white,
+                                              fontWeight: FontWeight.w600,
                                             ),
                                           ),
                                         ),
                                         title: Text(
                                           candidat.nom,
-                                          style: TextStyle(color: Colors.white),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.black87,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                         trailing: IconButton(
                                           icon: Icon(
                                             Icons.delete,
-                                            color: Colors.white70,
+                                            color: Colors.grey[500],
+                                            size: 20,
                                           ),
                                           onPressed: () {
                                             _supprimerCandidat(
@@ -562,295 +484,283 @@ class _ConfigScreenState extends State<ConfigScreen> {
                                       ),
                                     );
                                   },
-                                ),
-                              )
-                            else
-                              Container(
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.white24,
-                                    style: BorderStyle.solid,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Center(
+                                )
+                              : Center(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
-                                        Icons.person_outline,
-                                        color: Colors.white54,
-                                        size: 32,
+                                        Icons.people_outline,
+                                        size: 48,
+                                        color: Colors.grey[300],
                                       ),
-                                      const SizedBox(height: 8),
+                                      const SizedBox(height: 12),
                                       Text(
                                         'Aucun candidat ajouté',
-                                        style: TextStyle(color: Colors.white54),
+                                        style: TextStyle(
+                                          color: Colors.grey[400],
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Ajoutez des candidats avec le champ ci-dessus',
+                                        style: TextStyle(
+                                          color: Colors.grey[300],
+                                          fontSize: 12,
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
-                          ],
                         ),
-                      ),
+                      ],
                     ),
+                  ),
 
-                    const SizedBox(height: 20),
+                  const SizedBox(height: 24),
 
-                    // Section Phase
-                    Card(
-                      color: Colors.black.withOpacity(0.3),
-                      elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.flag,
-                                  color: Color(0xFFD4AF37),
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'PHASE DU CONCOURS',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.5),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.white24),
-                              ),
-                              child: DropdownButton<Phase>(
-                                value: _selectedPhase,
-                                dropdownColor: Colors.black,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                                underline: SizedBox(),
-                                isExpanded: true,
-                                onChanged: (Phase? nouvellePhase) {
-                                  if (nouvellePhase != null) {
-                                    setState(() {
-                                      _selectedPhase = nouvellePhase;
-                                    });
-                                    competition.changerPhase(nouvellePhase);
-                                  }
-                                },
-                                items: Phase.values.map((Phase phase) {
-                                  return DropdownMenuItem<Phase>(
-                                    value: phase,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(phase.nom),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-
-                            const SizedBox(height: 10),
-
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Color(0xFF0A1A2F),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                _getPhaseDescription(_selectedPhase),
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
-                  ],
-                ),
-              ),
-            ),
-
-            // Barre inférieure
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  topRight: Radius.circular(12),
-                ),
-                border: Border.all(color: Colors.white24),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
+                  // Section Phase
+                  _buildSection(
+                    title: 'PHASE DU CONCOURS',
+                    icon: Icons.flag,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'STATUT DE LA CONFIGURATION',
-                          style: TextStyle(fontSize: 12, color: Colors.white70),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.grey[50],
+                          ),
+                          child: DropdownButton<Phase>(
+                            value: _selectedPhase,
+                            dropdownColor: Colors.white,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                            ),
+                            underline: const SizedBox(),
+                            isExpanded: true,
+                            onChanged: (Phase? nouvellePhase) {
+                              if (nouvellePhase != null) {
+                                setState(() {
+                                  _selectedPhase = nouvellePhase;
+                                });
+                                competition.changerPhase(nouvellePhase);
+                              }
+                            },
+                            items: Phase.values.map((Phase phase) {
+                              return DropdownMenuItem<Phase>(
+                                value: phase,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(phase.nom),
+                                ),
+                              );
+                            }).toList(),
+                          ),
                         ),
-                        const SizedBox(height: 5),
-                        Text(
-                          configurationEstPrete()
-                              ? '✅ PRÊT À DÉMARRER'
-                              : '⏳ CONFIGURATION INCOMPLÈTE',
-                          style: TextStyle(
-                            color: configurationEstPrete()
-                                ? Colors.green
-                                : Colors.orange,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey[200]!),
+                          ),
+                          child: Text(
+                            _getPhaseDescription(_selectedPhase),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[700],
+                              height: 1.5,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  // Dans config_screen.dart - À LA LIGNE 541
-                  ElevatedButton.icon(
-                    onPressed: configurationEstPrete()
-                        ? () {
-                            // CORRECTION: Ajouter cette logique
-                            print('=== DÉBUT CONFIGURATION ===');
-                            print('Nombre de mots: ${competition.mots.length}');
-                            print(
-                              'Nombre de candidats: ${competition.candidats.length}',
-                            );
-
-                            if (competition.candidats.isNotEmpty &&
-                                competition.candidatActuel == null) {
-                              competition.selectionnerCandidat(
-                                competition.candidats.first.id,
-                              );
-                            }
-
-                            competition.tirerMotAleatoire();
-
-                            print('Mot actuel: ${competition.motActuel?.mot}');
-                            print(
-                              'Candidat actuel: ${competition.candidatActuel?.nom}',
-                            );
-
-                            // Afficher un message de succès
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Configuration terminée ! Passage au mode contrôle...',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                backgroundColor: Colors.green,
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-
-                            // CORRECTION CRITIQUE: Ajouter cet appel
-                            widget.onConfigurationComplete();
-
-                            print('=== FIN CONFIGURATION ===');
-                          }
-                        : null,
-                    icon: Icon(Icons.play_arrow),
-                    label: Text('TERMINER LA CONFIGURATION'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: configurationEstPrete()
-                          ? Colors.green
-                          : Colors.grey,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 25,
-                        vertical: 15,
-                      ),
-                    ),
-                  ),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+
+          // Barre inférieure
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 32),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              border: Border(top: BorderSide(color: Colors.grey[300]!)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'STATUT DE LA CONFIGURATION',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        configurationEstPrete()
+                            ? '✅ PRÊT À DÉMARRER'
+                            : '⏳ CONFIGURATION INCOMPLÈTE',
+                        style: TextStyle(
+                          color: configurationEstPrete()
+                              ? Colors.green[700]
+                              : Colors.amber[700],
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: configurationEstPrete()
+                      ? () {
+                          if (competition.candidats.isNotEmpty &&
+                              competition.candidatActuel == null) {
+                            competition.selectionnerCandidat(
+                              competition.candidats.first.id,
+                            );
+                          }
+
+                          competition.tirerMotAleatoire();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                'Configuration terminée ! Passage au mode contrôle...',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: Colors.black,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+
+                          widget.onConfigurationComplete();
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: configurationEstPrete()
+                        ? Colors.black
+                        : Colors.grey[300],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'DÉMARRER LE CONCOURS',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildStatusIndicator({
+  Widget _buildSection({
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 18, color: Colors.black),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatutIndicator({
     required String label,
     required bool isReady,
     int? count,
     String? text,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: isReady
-            ? Colors.green.withOpacity(0.2)
-            : Colors.orange.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isReady ? Colors.green : Colors.orange),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isReady ? Icons.check_circle : Icons.error,
-            size: 16,
-            color: isReady ? Colors.green : Colors.orange,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isReady ? Colors.black : Colors.grey[200],
+            border: Border.all(
+              color: isReady ? Colors.black : Colors.grey[300]!,
+              width: 2,
             ),
           ),
-          if (count != null) ...[
-            const SizedBox(width: 4),
-            Text(
-              '($count)',
+          child: Center(
+            child: Text(
+              count?.toString() ?? text?.substring(0, 1) ?? '?',
               style: TextStyle(
-                color: isReady ? Colors.green : Colors.orange,
-                fontSize: 12,
+                fontSize: 20,
+                color: isReady ? Colors.white : Colors.grey[400],
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ],
-          if (text != null) ...[
-            const SizedBox(width: 4),
-            Text(
-              ': $text',
-              style: TextStyle(
-                color: isReady ? Colors.green : Colors.orange,
-                fontSize: 12,
-              ),
-            ),
-          ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        if (text != null && count == null) ...[
+          const SizedBox(height: 4),
+          Text(text, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
         ],
-      ),
+      ],
     );
   }
 
@@ -912,10 +822,10 @@ class _ConfigScreenState extends State<ConfigScreen> {
         SnackBar(
           content: Text(
             '✅ ${competition.mots.length} mots chargés avec succès',
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 3),
+          backgroundColor: Colors.black,
+          duration: const Duration(seconds: 3),
         ),
       );
     } catch (e) {
@@ -926,9 +836,12 @@ class _ConfigScreenState extends State<ConfigScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('❌ Erreur: $e', style: TextStyle(color: Colors.white)),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 5),
+          content: Text(
+            '❌ Erreur: $e',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.black,
+          duration: const Duration(seconds: 5),
         ),
       );
     }
@@ -943,14 +856,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
           '''"Mot","Orthographe Officielle","Définition(s)","Exemple de Phrase","Nature Grammaticale","Étymologie","Catégorie","Niveau de Difficulté","Statut"
 "aboulie","aboulie","Manque pathologique de volonté","La dépression s'accompagne parfois d'une aboulie paralysante.","Nom (F)","Grec aboulia","SCI (Scientifique)","4","✓"
 "acédie","acédie","Paresse spirituelle","L'acédie monastique était considérée comme un péché capital.","Nom (F)","Grec akêdeia","CG (Culture Générale)","5","✓"
-"afférent","afférent","Qui conduit vers un centre (en physiologie)","Les nerfs afférents transmettent les informations sensorielles.","Adjectif","Latin afferre","SCI (Scientifique)","4","✓"
-"agnation","agnation","Lien de parenté par les hommes seulement","L'agnation déterminait la succession dans le droit romain.","Nom (F)","Latin agnatio","CG (Culture Générale)","5","✓"
-"alacrité","alacrité","Entrain prompt et joyeux","Il accepta l'invitation avec alacrité.","Nom (F)","Latin alacritas","LIT (Littéraire)","4","✓"
-"anacoluthe","anacoluthe","Rupture dans la construction syntaxique d'une phrase","Cette anacoluthe rend le texte difficile à suivre.","Nom (F)","Grec anakolouthos","LIT (Littéraire)","5","✓"
-"anaphrodisiaque","anaphrodisiaque","Qui diminue le désir sexuel","Certains médicaments ont un effet anaphrodisiaque indésirable.","Adjectif","Grec anaphrodisiakos","SCI (Scientifique)","5","✓"
-"apocope","apocope","Chute d'un ou plusieurs phonèmes à la fin d'un mot","Ciné est une apocope de cinématographe","Nom (F)","Grec apokopê","LIT (Littéraire)","5","✓"
-"apodictique","apodictique","Dont la vérité est absolument démontrable","Son raisonnement apodictique ne laissait place à aucun doute.","Adjectif","Grec apodeiktikos","CG (Culture Générale)","5","✓"
-"ataraxie","ataraxie","État de quiétude absolue, absence de troubles","Le sage stoïcien recherche l'ataraxie.","Nom (F)","Grec ataraxia","CG (Culture Générale)","4","✓"''';
+"afférent","afférent","Qui conduit vers un centre (en physiologie)","Les nerfs afférents transmettent les informations sensorielles.","Adjectif","Latin afferre","SCI (Scientifique)","4","✓"''';
 
       await fichier.writeAsString(exempleCsv);
 
@@ -963,10 +869,10 @@ class _ConfigScreenState extends State<ConfigScreen> {
         SnackBar(
           content: Text(
             '✅ Fichier d\'exemple créé: ${fichier.path}',
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
-          backgroundColor: Colors.blue,
-          duration: Duration(seconds: 4),
+          backgroundColor: Colors.black,
+          duration: const Duration(seconds: 4),
         ),
       );
     } catch (e) {
@@ -986,8 +892,8 @@ class _ConfigScreenState extends State<ConfigScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('✅ Candidat ajouté: $nomTrim'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
+          backgroundColor: Colors.black,
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -1001,12 +907,12 @@ class _ConfigScreenState extends State<ConfigScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Supprimer le candidat'),
+        title: const Text('Supprimer le candidat'),
         content: Text('Êtes-vous sûr de vouloir supprimer ${candidat.nom} ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('Annuler'),
+            child: const Text('Annuler'),
           ),
           TextButton(
             onPressed: () {
@@ -1016,11 +922,11 @@ class _ConfigScreenState extends State<ConfigScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('🗑️ Candidat supprimé: ${candidat.nom}'),
-                  backgroundColor: Colors.red,
+                  backgroundColor: Colors.black,
                 ),
               );
             },
-            child: Text('Supprimer', style: TextStyle(color: Colors.red)),
+            child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
