@@ -1,6 +1,7 @@
 // Nouvelle version complète de control_screen.dart
 import 'package:epellemoi/core/models/phase.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -378,6 +379,9 @@ class ControlScreen extends StatelessWidget {
   }
 
   Widget _buildSpellingInput(BuildContext context) {
+    // Déclarer un FocusNode pour capturer les entrées clavier
+    final focusNode = FocusNode();
+
     return Consumer<CompetitionService>(
       builder: (context, competition, child) {
         final saisie = competition.epellationSaisie;
@@ -415,24 +419,60 @@ class ControlScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: Text(
-                  saisie.isNotEmpty ? saisie : 'Tapez les lettres...',
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                    letterSpacing: 2,
-                    fontFamily: 'Courier',
+
+              // Zone avec écouteur de clavier
+              RawKeyboardListener(
+                focusNode: focusNode,
+                onKey: (RawKeyEvent event) {
+                  if (event is RawKeyDownEvent) {
+                    final keyLabel = event.logicalKey.keyLabel;
+
+                    // Ajouter les lettres A-Z (majuscules)
+                    if (keyLabel.length == 1 &&
+                        keyLabel.toUpperCase() != keyLabel.toLowerCase()) {
+                      competition.ajouterLettre(keyLabel.toUpperCase());
+                    }
+                    // Gérer la barre d'espace (toujours disponible au clavier)
+                    else if (event.logicalKey == LogicalKeyboardKey.space) {
+                      competition.ajouterLettre(' ');
+                    }
+                    // Gérer backspace
+                    else if (event.logicalKey == LogicalKeyboardKey.backspace) {
+                      competition.supprimerLettre();
+                    }
+                    // Gérer delete
+                    else if (event.logicalKey == LogicalKeyboardKey.delete) {
+                      competition.effacerEpellation();
+                    }
+                  }
+                },
+                child: GestureDetector(
+                  onTap: () {
+                    focusNode.requestFocus(); // Donne le focus quand on clique
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: Text(
+                      saisie.isNotEmpty
+                          ? saisie
+                          : 'Cliquez ici puis tapez au clavier...',
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                        letterSpacing: 2,
+                        fontFamily: 'Courier',
+                      ),
+                    ),
                   ),
                 ),
               ),
+
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -454,16 +494,17 @@ class ControlScreen extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => competition.ajouterLettre(' '),
+                      onPressed: () => competition.reinitialiserChrono(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor:
+                            Colors.blue, // Couleur bleue pour reset
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text('ESPACE'),
+                      child: const Text('RESET CHRONO'),
                     ),
                   ),
                   const SizedBox(width: 8),
