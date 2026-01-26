@@ -8,7 +8,7 @@ class AppTextStyles {
   // Pour les mots officiels, titres, en-têtes
   static TextStyle serifDisplayLarge = TextStyle(
     fontFamily: 'PlayfairDisplay',
-    fontSize: 72,
+    fontSize: 56,
     color: AppColors.blancFroid,
     fontWeight: FontWeight.w700,
     letterSpacing: 2.0,
@@ -17,7 +17,7 @@ class AppTextStyles {
 
   static TextStyle serifDisplayMedium = TextStyle(
     fontFamily: 'PlayfairDisplay',
-    fontSize: 48,
+    fontSize: 40,
     color: AppColors.blancFroid,
     fontWeight: FontWeight.w600,
     letterSpacing: 1.5,
@@ -25,7 +25,7 @@ class AppTextStyles {
 
   static TextStyle serifTitle = TextStyle(
     fontFamily: 'PlayfairDisplay',
-    fontSize: 28,
+    fontSize: 24,
     color: AppColors.or,
     fontWeight: FontWeight.w600,
     letterSpacing: 1.2,
@@ -35,7 +35,7 @@ class AppTextStyles {
   // Pour l'interface, le chrono, les contrôles
   static TextStyle sansSerifLarge = TextStyle(
     fontFamily: 'Inter',
-    fontSize: 32,
+    fontSize: 28,
     color: AppColors.blancFroid,
     fontWeight: FontWeight.w500,
     letterSpacing: 1.0,
@@ -43,7 +43,7 @@ class AppTextStyles {
 
   static TextStyle sansSerifMedium = TextStyle(
     fontFamily: 'Inter',
-    fontSize: 20,
+    fontSize: 18,
     color: AppColors.blancIvoire,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.5,
@@ -51,7 +51,7 @@ class AppTextStyles {
 
   static TextStyle sansSerifSmall = TextStyle(
     fontFamily: 'Inter',
-    fontSize: 14,
+    fontSize: 13,
     color: AppColors.blancIvoire.withOpacity(0.8),
     fontWeight: FontWeight.w300,
   );
@@ -59,7 +59,7 @@ class AppTextStyles {
   // === ÉPELLATION - Affichage spécial ===
   static TextStyle epellationLetter = TextStyle(
     fontFamily: 'Inter',
-    fontSize: 80,
+    fontSize: 64,
     color: AppColors.or,
     fontWeight: FontWeight.w700,
     letterSpacing: 12.0,
@@ -75,7 +75,7 @@ class AppTextStyles {
   // === CHRONOMÈTRE - Urgence visuelle ===
   static TextStyle chronometer = TextStyle(
     fontFamily: 'RobotoMono',
-    fontSize: 64,
+    fontSize: 52,
     color: AppColors.blancFroid,
     fontWeight: FontWeight.w700,
     letterSpacing: 3.0,

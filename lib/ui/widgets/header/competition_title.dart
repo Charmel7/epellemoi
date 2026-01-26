@@ -38,13 +38,13 @@ class CompetitionTitle extends StatelessWidget {
             height: 1,
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 30),
 
         // "ÉPELLE" en gras
         Text(
           'ÉPELLE',
           style: TextStyle(
-            fontSize: compact ? 36 : 48,
+            fontSize: compact ? 20 : 40,
             fontWeight: FontWeight.w900,
             color: primaryColor,
             height: 0.9,
@@ -56,7 +56,7 @@ class CompetitionTitle extends StatelessWidget {
         Text(
           'MOI',
           style: TextStyle(
-            fontSize: compact ? 54 : 80,
+            fontSize: compact ? 35 : 60,
             fontWeight: FontWeight.w900,
             color: primaryColor,
             height: 0.85,
@@ -70,7 +70,7 @@ class CompetitionTitle extends StatelessWidget {
           Text(
             customSubtitle ?? 'CONSOLE DE CONTRÔLE',
             style: TextStyle(
-              fontSize: compact ? 10 : 12,
+              fontSize: compact ? 5 : 12,
               letterSpacing: 2,
               fontWeight: FontWeight.w300,
               color: secondaryColor,
@@ -98,7 +98,7 @@ class CompetitionTitleCard extends StatelessWidget {
     final bool isDarkMode = !isAdminScreen;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 32),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       decoration: BoxDecoration(
         color: isAdminScreen ? AppColors.bleuMarineFonce : Colors.black,
         border: Border(

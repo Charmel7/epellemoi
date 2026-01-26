@@ -1,6 +1,7 @@
 // main.dart - VERSION COMPLÈTE ET CORRIGÉE
 import 'dart:math' as math;
 
+import 'package:epellemoi/app_scalling.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_retriever/screen_retriever.dart';
@@ -58,7 +59,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with WindowListener {
   bool _estConfigure = false;
-  bool _isProductionMode = false;
+  bool _isProductionMode = true;
   List<Display> _screens = [];
   bool _isLoadingScreens = false;
 
@@ -178,15 +179,17 @@ class _HomeScreenState extends State<HomeScreen> with WindowListener {
                     },
                     isProductionMode: _isProductionMode,
                   )
-                : ConfigScreen(
-                    onConfigurationComplete: () {
-                      if (competitionService.mots.isNotEmpty &&
-                          competitionService.candidats.isNotEmpty) {
-                        setState(() {
-                          _estConfigure = true;
-                        });
-                      }
-                    },
+                : ScaledWidget(
+                    child: ConfigScreen(
+                      onConfigurationComplete: () {
+                        if (competitionService.mots.isNotEmpty &&
+                            competitionService.candidats.isNotEmpty) {
+                          setState(() {
+                            _estConfigure = true;
+                          });
+                        }
+                      },
+                    ),
                   ),
             projectionPanel: const ProjectionScreen(),
           ),

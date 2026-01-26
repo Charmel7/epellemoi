@@ -504,7 +504,7 @@ class ControlScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text('RESET CHRONO'),
+                      child: const Icon(Icons.refresh, size: 20),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -536,7 +536,7 @@ class ControlScreen extends StatelessWidget {
     final competition = Provider.of<CompetitionService>(context, listen: false);
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey[300]!),
         borderRadius: BorderRadius.circular(12),
@@ -566,7 +566,7 @@ class ControlScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green[50],
                     foregroundColor: Colors.green[700],
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                       side: BorderSide(color: Colors.green[100]!),
@@ -586,7 +586,7 @@ class ControlScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red[50],
                     foregroundColor: Colors.red[700],
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                       side: BorderSide(color: Colors.red[100]!),
@@ -614,7 +614,7 @@ class ControlScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: competition.revelerMot,
@@ -623,7 +623,7 @@ class ControlScreen extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.black,
                     side: BorderSide(color: Colors.grey[400]!),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -652,7 +652,7 @@ class ControlScreen extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
                     border: Border(
@@ -707,7 +707,7 @@ class ControlScreen extends StatelessWidget {
                                 size: 48,
                                 color: Colors.grey[300],
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 12),
                               Text(
                                 'Aucun candidat',
                                 style: TextStyle(
@@ -728,14 +728,14 @@ class ControlScreen extends StatelessWidget {
                           ),
                         )
                       : ListView.builder(
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(4),
                           itemCount: candidats.length,
                           itemBuilder: (context, index) {
                             final candidat = candidats[index];
                             final estActif = candidatActuel?.id == candidat.id;
 
                             return Container(
-                              margin: const EdgeInsets.only(bottom: 8),
+                              margin: const EdgeInsets.only(bottom: 4),
                               child: Material(
                                 color: estActif
                                     ? Colors.black
